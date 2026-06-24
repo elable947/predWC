@@ -122,6 +122,6 @@ predWC/
 
 ## Notas
 
-- `MAX_DATE` en `stacking_model.py` está fijado a `2026-06-23` (datos hasta ayer)
+- `MAX_DATE` se calcula automáticamente como `hoy - 1 día` — `results.csv` se actualiza a diario con datos hasta el día anterior
 - Los datos en `data/` están pre-generados; para actualizarlos se necesita la carpeta `scripts/` (no incluida aquí)
 - Las predicciones dividen el empate 50/50 para calcular probabilidad de avance

@@ -21,7 +21,7 @@ FIFA_RANKINGS = "data/fifa_rankings.json"
 ELO_RANKINGS = "data/elo_rankings.json"
 ELO_HISTORY = "data/elo_history.parquet"
 KNOCKOUT_MATCHES = "data/knockout_matches.json"
-MAX_DATE = "2026-06-23"
+MAX_DATE = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 TOURNAMENT_WEIGHTS = {
     "FIFA World Cup": 5.0,

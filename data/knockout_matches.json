@@ -1,0 +1,66 @@
+[
+  {
+    "local": "Germany",
+    "visitante": "Paraguay"
+  },
+  {
+    "local": "France",
+    "visitante": "Sweden"
+  },
+  {
+    "local": "South Korea",
+    "visitante": "Canada"
+  },
+  {
+    "local": "Netherlands",
+    "visitante": "Morocco"
+  },
+  {
+    "local": "Portugal",
+    "visitante": "Ghana"
+  },
+  {
+    "local": "Spain",
+    "visitante": "Austria"
+  },
+  {
+    "local": "United States",
+    "visitante": "Bosnia-Herzegovina"
+  },
+  {
+    "local": "Egypt",
+    "visitante": "Cape Verde"
+  },
+  {
+    "local": "Brazil",
+    "visitante": "Japan"
+  },
+  {
+    "local": "Ivory Coast",
+    "visitante": "Norway"
+  },
+  {
+    "local": "Mexico",
+    "visitante": "Scotland"
+  },
+  {
+    "local": "England",
+    "visitante": "Algeria"
+  },
+  {
+    "local": "Argentina",
+    "visitante": "Uruguay"
+  },
+  {
+    "local": "Australia",
+    "visitante": "Iran"
+  },
+  {
+    "local": "Switzerland",
+    "visitante": "Belgium"
+  },
+  {
+    "local": "Colombia",
+    "visitante": "Croatia"
+  }
+]

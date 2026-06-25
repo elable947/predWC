@@ -30,14 +30,14 @@
   {
     "rank": 5,
     "team": "Brazil",
-    "points": 1772.008748,
+    "points": 1785.192469,
     "country_code": "BRA",
     "confederation": "CONMEBOL"
   },
   {
     "rank": 6,
     "team": "Morocco",
-    "points": 1769.977009,
+    "points": 1776.398605,
     "country_code": "MAR",
     "confederation": "CAF"
   },
@@ -64,24 +64,24 @@
   },
   {
     "rank": 10,
+    "team": "Mexico",
+    "points": 1736.008187,
+    "country_code": "MEX",
+    "confederation": "CONCACAF"
+  },
+  {
+    "rank": 11,
     "team": "Belgium",
     "points": 1727.878171,
     "country_code": "BEL",
     "confederation": "UEFA"
   },
   {
-    "rank": 11,
+    "rank": 12,
     "team": "Colombia",
     "points": 1727.418064,
     "country_code": "COL",
     "confederation": "CONMEBOL"
-  },
-  {
-    "rank": 12,
-    "team": "Mexico",
-    "points": 1721.782405,
-    "country_code": "MEX",
-    "confederation": "CONCACAF"
   },
   {
     "rank": 13,
@@ -162,38 +162,38 @@
   },
   {
     "rank": 24,
-    "team": "Korea Republic",
-    "points": 1591.749573,
-    "country_code": "KOR",
-    "confederation": "AFC"
-  },
-  {
-    "rank": 25,
     "team": "Nigeria",
     "points": 1585.017102,
     "country_code": "NGA",
     "confederation": "CAF"
   },
   {
-    "rank": 26,
+    "rank": 25,
     "team": "Australia",
     "points": 1584.552251,
     "country_code": "AUS",
     "confederation": "AFC"
   },
   {
-    "rank": 27,
+    "rank": 26,
     "team": "Egypt",
     "points": 1583.372827,
     "country_code": "EGY",
     "confederation": "CAF"
   },
   {
-    "rank": 28,
+    "rank": 27,
     "team": "Algeria",
     "points": 1575.635315,
     "country_code": "ALG",
     "confederation": "CAF"
+  },
+  {
+    "rank": 28,
+    "team": "Korea Republic",
+    "points": 1558.719499,
+    "country_code": "KOR",
+    "confederation": "AFC"
   },
   {
     "rank": 29,
@@ -274,16 +274,16 @@
   },
   {
     "rank": 40,
-    "team": "Scotland",
-    "points": 1504.407608,
-    "country_code": "SCO",
+    "team": "Serbia",
+    "points": 1502.133186,
+    "country_code": "SRB",
     "confederation": "UEFA"
   },
   {
     "rank": 41,
-    "team": "Serbia",
-    "points": 1502.133186,
-    "country_code": "SRB",
+    "team": "Scotland",
+    "points": 1491.223887,
+    "country_code": "SCO",
     "confederation": "UEFA"
   },
   {
@@ -295,45 +295,45 @@
   },
   {
     "rank": 43,
-    "team": "Czechia",
-    "points": 1481.485998,
-    "country_code": "CZE",
-    "confederation": "UEFA"
-  },
-  {
-    "rank": 44,
     "team": "Cameroon",
     "points": 1481.235245,
     "country_code": "CMR",
     "confederation": "CAF"
   },
   {
-    "rank": 45,
+    "rank": 44,
     "team": "Slovakia",
     "points": 1473.660727,
     "country_code": "SVK",
     "confederation": "UEFA"
   },
   {
-    "rank": 46,
+    "rank": 45,
     "team": "Greece",
     "points": 1473.187305,
     "country_code": "GRE",
     "confederation": "UEFA"
   },
   {
-    "rank": 47,
+    "rank": 46,
     "team": "Congo DR",
     "points": 1472.36928,
     "country_code": "COD",
     "confederation": "CAF"
   },
   {
-    "rank": 48,
+    "rank": 47,
     "team": "Venezuela",
     "points": 1469.177672,
     "country_code": "VEN",
     "confederation": "CONMEBOL"
+  },
+  {
+    "rank": 48,
+    "team": "Czechia",
+    "points": 1467.260216,
+    "country_code": "CZE",
+    "confederation": "UEFA"
   },
   {
     "rank": 49,
@@ -372,52 +372,52 @@
   },
   {
     "rank": 54,
+    "team": "South Africa",
+    "points": 1451.241881,
+    "country_code": "RSA",
+    "confederation": "CAF"
+  },
+  {
+    "rank": 55,
     "team": "Republic of Ireland",
     "points": 1441.096901,
     "country_code": "IRL",
     "confederation": "UEFA"
   },
   {
-    "rank": 55,
+    "rank": 56,
     "team": "Slovenia",
     "points": 1441.087158,
     "country_code": "SVN",
     "confederation": "UEFA"
   },
   {
-    "rank": 56,
+    "rank": 57,
     "team": "Tunisia",
     "points": 1437.686114,
     "country_code": "TUN",
     "confederation": "CAF"
   },
   {
-    "rank": 57,
+    "rank": 58,
     "team": "Uzbekistan",
     "points": 1432.836845,
     "country_code": "UZB",
     "confederation": "AFC"
   },
   {
-    "rank": 58,
+    "rank": 59,
     "team": "Saudi Arabia",
     "points": 1426.710754,
     "country_code": "KSA",
     "confederation": "AFC"
   },
   {
-    "rank": 59,
+    "rank": 60,
     "team": "Iraq",
     "points": 1419.239962,
     "country_code": "IRQ",
     "confederation": "AFC"
-  },
-  {
-    "rank": 60,
-    "team": "South Africa",
-    "points": 1418.211807,
-    "country_code": "RSA",
-    "confederation": "CAF"
   },
   {
     "rank": 61,
@@ -603,17 +603,17 @@
   },
   {
     "rank": 87,
-    "team": "Haiti",
-    "points": 1271.000019,
-    "country_code": "HAI",
-    "confederation": "CONCACAF"
-  },
-  {
-    "rank": 88,
     "team": "Angola",
     "points": 1265.575056,
     "country_code": "ANG",
     "confederation": "CAF"
+  },
+  {
+    "rank": 88,
+    "team": "Haiti",
+    "points": 1264.578423,
+    "country_code": "HAI",
+    "confederation": "CONCACAF"
   },
   {
     "rank": 89,

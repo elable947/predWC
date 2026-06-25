@@ -129,7 +129,7 @@ def get_historical_elo(team, match_date, elo_lookup, static_elo=None):
     return 1500
 
 
-def compute_rolling_stats(matches, team_col, date, elo_lookup, static_elo=None, window_matches=20, decay_halflife=180):
+def compute_rolling_stats(matches, team_col, date, elo_lookup, static_elo=None, window_matches=10, decay_halflife=180):
     if isinstance(date, datetime):
         date = date.date()
     recent = matches.filter(

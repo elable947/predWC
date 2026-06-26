@@ -96,18 +96,18 @@
   },
   {
     "rank": "20",
+    "team": "Turkey",
+    "rating": "1852"
+  },
+  {
+    "rank": "21",
     "team": "Uruguay",
     "rating": "1851"
   },
   {
-    "rank": "21",
+    "rank": "22",
     "team": "Austria",
     "rating": "1841"
-  },
-  {
-    "rank": "22",
-    "team": "United States",
-    "rating": "1820"
   },
   {
     "rank": "23",
@@ -117,17 +117,17 @@
   {
     "rank": "24",
     "team": "Paraguay",
-    "rating": "1816"
+    "rating": "1815"
   },
   {
     "rank": "25",
-    "team": "Turkey",
-    "rating": "1813"
+    "team": "Australia",
+    "rating": "1800"
   },
   {
     "rank": "26",
-    "team": "Australia",
-    "rating": "1799"
+    "team": "United States",
+    "rating": "1781"
   },
   {
     "rank": "27",

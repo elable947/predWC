@@ -29,3 +29,9 @@ Thumbs.db
 
 # Scraping artifacts
 downloaded_files/
+
+# Generated charts
+data/*.png
+
+# API keys
+apis.txt

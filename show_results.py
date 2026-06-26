@@ -25,6 +25,7 @@ sns.set_style("whitegrid")
 plt.rcParams.update({"font.size": 11, "figure.dpi": 120})
 
 PREDICTIONS = "data/knockout_predictions.csv"
+PREDICTIONS_NLP = "data/knockout_predictions_nlp.csv"
 
 
 LOCAL_COLOR = "#3498db"
@@ -141,15 +142,19 @@ def plot_poisson_panel(df):
 
 def main():
     save_mode = "--save" in sys.argv
+    use_nlp = "--nlp" in sys.argv
 
+    csv_path = PREDICTIONS_NLP if use_nlp else PREDICTIONS
     print("=" * 50)
     print("  SHOW RESULTS — World Cup 2026 Predictions")
+    if use_nlp:
+        print("  (NLP-enhanced predictions)")
     print("=" * 50)
-    print(f"\nReading {PREDICTIONS}...")
+    print(f"\nReading {csv_path}...")
     try:
-        df = pl.read_csv(PREDICTIONS)
+        df = pl.read_csv(csv_path)
     except FileNotFoundError:
-        print(f"  ERROR: {PREDICTIONS} not found. Run stacking_model.py first.")
+        print(f"  ERROR: {csv_path} not found. Run stacking_model{'nlp' if use_nlp else ''}.py first.")
         return
     print(f"  {df.height} matches loaded")
     print()

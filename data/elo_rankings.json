@@ -37,62 +37,62 @@
   {
     "rank": "8",
     "team": "Netherlands",
-    "rating": "1972"
+    "rating": "1980"
   },
   {
     "rank": "9",
-    "team": "Germany",
-    "rating": "1954"
-  },
-  {
-    "rank": "10",
     "team": "Norway",
     "rating": "1951"
   },
   {
-    "rank": "11",
-    "team": "Japan",
-    "rating": "1925"
+    "rank": "10",
+    "team": "Germany",
+    "rating": "1916"
   },
   {
-    "rank": "12",
+    "rank": "11",
     "team": "Switzerland",
     "rating": "1914"
   },
   {
-    "rank": "13",
+    "rank": "12",
     "team": "Mexico",
     "rating": "1912"
   },
   {
+    "rank": "13",
+    "team": "Japan",
+    "rating": "1910"
+  },
+  {
     "rank": "14",
+    "team": "Ecuador",
+    "rating": "1902"
+  },
+  {
+    "rank": "15",
     "team": "Croatia",
     "rating": "1896"
   },
   {
-    "rank": "15",
+    "rank": "16",
     "team": "Morocco",
     "rating": "1877"
   },
   {
-    "rank": "16",
+    "rank": "17",
     "team": "Denmark",
     "rating": "1869"
   },
   {
-    "rank": "16",
+    "rank": "17",
     "team": "Italy",
     "rating": "1869"
   },
   {
-    "rank": "16",
+    "rank": "17",
     "team": "Belgium",
     "rating": "1869"
-  },
-  {
-    "rank": "19",
-    "team": "Ecuador",
-    "rating": "1864"
   },
   {
     "rank": "20",
@@ -171,28 +171,28 @@
   },
   {
     "rank": "35",
+    "team": "Ivory Coast",
+    "rating": "1743"
+  },
+  {
+    "rank": "36",
+    "team": "Sweden",
+    "rating": "1742"
+  },
+  {
+    "rank": "37",
     "team": "Egypt",
     "rating": "1740"
   },
   {
-    "rank": "36",
+    "rank": "38",
     "team": "Serbia",
     "rating": "1734"
   },
   {
-    "rank": "37",
+    "rank": "39",
     "team": "Venezuela",
     "rating": "1733"
-  },
-  {
-    "rank": "38",
-    "team": "Ivory Coast",
-    "rating": "1728"
-  },
-  {
-    "rank": "39",
-    "team": "Sweden",
-    "rating": "1727"
   },
   {
     "rank": "40",
@@ -351,18 +351,18 @@
   },
   {
     "rank": "71",
-    "team": "Tunisia",
-    "rating": "1570"
-  },
-  {
-    "rank": "71",
     "team": "Honduras",
     "rating": "1570"
   },
   {
-    "rank": "73",
+    "rank": "72",
     "team": "Iceland",
     "rating": "1568"
+  },
+  {
+    "rank": "73",
+    "team": "Tunisia",
+    "rating": "1562"
   },
   {
     "rank": "74",
@@ -441,18 +441,18 @@
   },
   {
     "rank": "89",
-    "team": "Curaçao",
-    "rating": "1453"
-  },
-  {
-    "rank": "90",
     "team": "Luxembourg",
     "rating": "1450"
   },
   {
-    "rank": "91",
+    "rank": "90",
     "team": "Northern Cyprus",
     "rating": "1442"
+  },
+  {
+    "rank": "91",
+    "team": "Curaçao",
+    "rating": "1438"
   },
   {
     "rank": "92",

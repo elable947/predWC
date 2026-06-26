@@ -21,7 +21,11 @@ skills-lock.json
 
 # Design notes
 indicaciones.txt
+posibles-mejoras-articulos.txt
 
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Scraping artifacts
+downloaded_files/

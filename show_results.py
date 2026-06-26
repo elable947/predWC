@@ -18,6 +18,7 @@ def plot_advancement(df):
         print("  No data to plot")
         return
     fig, ax = plt.subplots(figsize=(10, 8))
+    fig.canvas.manager.set_window_title("Avance a 16avos")
     matches = [m.replace(" vs ", "\nvs\n") for m in df["match"]]
     y = np.arange(len(matches))
     width = 0.35
@@ -33,9 +34,6 @@ def plot_advancement(df):
         ax.text(l + 1, i + width / 2, f"{l:.0f}%", va="center", fontsize=7, color=LOCAL_COLOR)
         ax.text(a + 1, i - width / 2, f"{a:.0f}%", va="center", fontsize=7, color=AWAY_COLOR)
     fig.tight_layout()
-    fig.savefig("data/advancement.png")
-    print("  Saved data/advancement.png")
-    plt.close(fig)
 
 
 def plot_match_probabilities(df):
@@ -45,6 +43,7 @@ def plot_match_probabilities(df):
     n = len(df)
     rows = (n + 3) // 4
     fig, axes = plt.subplots(rows, 4, figsize=(14, 3 * rows))
+    fig.canvas.manager.set_window_title("Probabilidades por partido")
     axes = axes.flatten()
     colors = [LOCAL_COLOR, "#f39c12", AWAY_COLOR]
     for i, row in enumerate(df.iter_rows(named=True)):
@@ -62,13 +61,11 @@ def plot_match_probabilities(df):
         fig.delaxes(axes[j])
     fig.suptitle("Probabilidades por partido — 16avos Mundial 2026", fontsize=14, y=1.02)
     fig.tight_layout()
-    fig.savefig("data/probabilities.png")
-    print("  Saved data/probabilities.png")
-    plt.close(fig)
 
 
 def plot_confidence_gauge(df):
     fig, ax = plt.subplots(figsize=(10, 4))
+    fig.canvas.manager.set_window_title("Confianza del modelo")
     df = df.with_columns(
         (pl.max_horizontal("local_win_pct", "away_win_pct")).alias("max_prob")
     )
@@ -84,9 +81,40 @@ def plot_confidence_gauge(df):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
                 f"{v:.0f}%", ha="center", fontsize=8)
     fig.tight_layout()
-    fig.savefig("data/confidence.png")
-    print("  Saved data/confidence.png")
-    plt.close(fig)
+
+
+def plot_poisson_panel(df):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+    fig.canvas.manager.set_window_title("Poisson — Scores Esperados")
+
+    # Left: Expected goals comparison
+    x = np.arange(len(df))
+    width = 0.35
+    ax1.bar(x - width / 2, df["expected_goals_local"], width, label="Local", color=LOCAL_COLOR)
+    ax1.bar(x + width / 2, df["expected_goals_away"], width, label="Visitante", color=AWAY_COLOR)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([m.replace(" vs ", "\n") for m in df["match"]], fontsize=7)
+    ax1.set_ylabel("Goles esperados (λ)")
+    ax1.set_title("Goles esperados por equipo (Poisson)")
+    ax1.legend()
+    ax1.tick_params(axis="x", labelsize=6)
+
+    # Right: Most likely score per match
+    matches_short = [m[:15] + "\n" + m.split(" vs ")[1][:15] if " vs " in m else m for m in df["match"]]
+    score_labels = [f"{s}\n({p:.0f}%)" for s, p in zip(df["most_likely_score"], df["most_likely_score_pct"])]
+    colors = [LOCAL_COLOR if int(s.split("-")[0]) > int(s.split("-")[1]) else
+              AWAY_COLOR if int(s.split("-")[0]) < int(s.split("-")[1]) else
+              "#f39c12"
+              for s in df["most_likely_score"]]
+    ax2.barh(range(len(df)), df["most_likely_score_pct"], color=colors)
+    ax2.set_yticks(range(len(df)))
+    ax2.set_yticklabels(matches_short, fontsize=7)
+    ax2.set_xlabel("Probabilidad (%)")
+    ax2.set_title("Score más probable (Poisson + Monte Carlo)")
+    for i, (label, pct) in enumerate(zip(score_labels, df["most_likely_score_pct"])):
+        ax2.text(pct + 0.5, i, label, va="center", fontsize=7)
+    ax2.set_xlim(0, df["most_likely_score_pct"].max() + 10)
+    fig.tight_layout()
 
 
 def main():
@@ -101,12 +129,10 @@ def main():
         return
     print(f"  {df.height} matches loaded")
     print()
-    print("Generating charts...")
+    print("Opening interactive windows...")
     plot_advancement(df)
     plot_match_probabilities(df)
     plot_confidence_gauge(df)
-    print("\nAll charts saved to data/")
-
-
-if __name__ == "__main__":
-    main()
+    plot_poisson_panel(df)
+    print("\nClose the plot windows to exit.")
+    plt.show()

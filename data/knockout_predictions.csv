@@ -1,17 +1,17 @@
-match,local_win_pct,draw_pct,away_win_pct,local_advance_pct,away_advance_pct
-Germany vs Paraguay,68.7,21.7,9.6,79.5,20.5
-France vs Sweden,65.3,24.1,10.6,77.4,22.6
-South Africa vs Canada,21.5,29.6,48.9,36.3,63.7
-Netherlands vs Morocco,29.7,29.6,40.7,44.5,55.5
-Portugal vs Ghana,71.3,20.2,8.4,81.5,18.5
-Spain vs Austria,59.1,26.3,14.6,72.3,27.7
-United States vs Bosnia-Herzegovina,60.8,25.2,13.9,73.4,26.6
-Egypt vs South Korea,58.7,25.2,16.1,71.3,28.7
-Brazil vs Japan,70.0,20.5,9.4,80.3,19.7
-Ivory Coast vs Norway,23.3,25.1,51.6,35.9,64.1
-Mexico vs Scotland,71.1,20.1,8.8,81.1,18.9
-England vs Cape Verde,70.9,20.8,8.4,81.2,18.8
-Argentina vs Uruguay,67.3,22.1,10.6,78.4,21.6
-Australia vs Iran,67.6,21.9,10.5,78.6,21.4
-Switzerland vs Algeria,55.5,26.8,17.7,68.9,31.1
-Colombia vs Croatia,42.9,31.2,26.0,58.5,41.5
+match,local_win_pct,draw_pct,away_win_pct,local_advance_pct,away_advance_pct,expected_goals_local,expected_goals_away,most_likely_score,most_likely_score_pct
+Germany vs Paraguay,68.9,19.9,11.2,78.9,21.1,1.88,0.85,1-0,12.0
+France vs Sweden,75.4,16.7,7.9,83.7,16.3,2.43,0.3,2-0,19.1
+South Africa vs Canada,23.6,25.6,50.8,36.4,63.6,0.52,2.21,0-2,15.9
+Netherlands vs Morocco,52.0,25.8,22.2,64.9,35.1,1.77,0.96,1-0,11.5
+Portugal vs Ghana,73.7,18.2,8.1,82.8,17.2,2.49,0.24,2-0,20.3
+Spain vs Austria,61.5,24.9,13.6,74.0,26.0,2.3,0.43,2-0,17.1
+United States vs Bosnia-Herzegovina,61.6,26.0,12.4,74.6,25.4,2.14,0.59,2-0,14.8
+Egypt vs South Korea,34.2,30.4,35.3,49.4,50.6,1.24,1.49,1-1,12.1
+Brazil vs Japan,60.6,24.5,14.9,72.8,27.2,1.6,1.13,1-1,11.8
+Ivory Coast vs Norway,17.1,21.1,61.8,27.7,72.3,0.59,2.14,0-2,14.7
+Mexico vs Scotland,69.7,18.9,11.4,79.1,20.9,1.85,0.88,1-0,12.0
+England vs Ecuador,51.1,30.7,18.2,66.5,33.5,1.97,0.76,1-0,12.8
+Argentina vs Uruguay,64.3,22.2,13.5,75.4,24.6,2.3,0.43,2-0,17.1
+Australia vs Iran,50.3,25.1,24.6,62.8,37.2,1.49,1.24,1-1,12.0
+Switzerland vs Algeria,45.8,28.6,25.6,60.1,39.9,1.77,0.96,1-0,11.4
+Colombia vs Croatia,65.4,21.5,13.2,76.1,23.9,1.78,0.95,1-0,11.7

@@ -17,7 +17,6 @@ from sklearn.svm import SVC
 warnings.filterwarnings("ignore")
 
 RESULTS_URL = "https://raw.githubusercontent.com/martj42/international_results/refs/heads/master/results.csv"
-FIFA_RANKINGS = "data/fifa_rankings.json"
 ELO_RANKINGS = "data/elo_rankings.json"
 ELO_HISTORY = "data/elo_history.parquet"
 KNOCKOUT_MATCHES = "data/knockout_matches.json"
@@ -39,14 +38,14 @@ TOURNAMENT_WEIGHTS = {
 }
 
 FEATURE_COLS = [
+
     "home_matches_played", "home_goals_for_avg", "home_goals_against_avg",
     "home_goal_diff_avg", "home_win_pct", "home_draw_pct", "home_loss_pct",
     "home_recent_form",
     "away_matches_played", "away_goals_for_avg", "away_goals_against_avg",
     "away_goal_diff_avg", "away_win_pct", "away_draw_pct", "away_loss_pct",
     "away_recent_form",
-    "home_fifa_rank", "away_fifa_rank", "home_fifa_points", "away_fifa_points",
-    "home_elo", "away_elo", "elo_diff", "fifa_rank_diff", "goal_diff_strength",
+    "home_elo", "away_elo", "elo_diff", "goal_diff_strength",
     "h2h_home_wins", "h2h_away_wins", "h2h_draws", "tournament_weight", "is_neutral",
 ]
 
@@ -64,16 +63,6 @@ def normalize_team_name(name):
     if name == "Congo":
         name = "Congo DR"
     return name
-
-
-def load_rankings():
-    rankings = {}
-    with open(FIFA_RANKINGS) as f:
-        for team in json.load(f):
-            rankings[team["team"]] = {
-                "fifa_rank": team["rank"], "fifa_points": team["points"],
-            }
-    return rankings
 
 
 def load_static_elo():
@@ -187,7 +176,7 @@ def compute_rolling_stats(matches, team_col, date, elo_lookup, static_elo=None, 
     }
 
 
-def build_features_for_match(match, matches_df, rankings, match_date, elo_lookup, static_elo=None):
+def build_features_for_match(match, matches_df, match_date, elo_lookup, static_elo=None):
     home = normalize_team_name(match["local"])
     away = normalize_team_name(match["visitante"])
 
@@ -209,8 +198,6 @@ def build_features_for_match(match, matches_df, rankings, match_date, elo_lookup
         elif r["away_team"] == away and r["away_score"] > r["home_score"]: aw += 1
         else: hd += 1
 
-    hr = rankings.get(home, {})
-    ar = rankings.get(away, {})
     he = get_historical_elo(normalize_team_for_elo(home), date, elo_lookup, static_elo)
     ae = get_historical_elo(normalize_team_for_elo(away), date, elo_lookup, static_elo)
 
@@ -231,19 +218,35 @@ def build_features_for_match(match, matches_df, rankings, match_date, elo_lookup
         "away_draw_pct": as_["draw_pct"],
         "away_loss_pct": as_["loss_pct"],
         "away_recent_form": as_["recent_form"],
-        "home_fifa_rank": hr.get("fifa_rank", 100),
-        "away_fifa_rank": ar.get("fifa_rank", 100),
-        "home_fifa_points": hr.get("fifa_points", 1000),
-        "away_fifa_points": ar.get("fifa_points", 1000),
         "home_elo": he,
         "away_elo": ae,
         "elo_diff": he - ae,
-        "fifa_rank_diff": ar.get("fifa_rank", 100) - hr.get("fifa_rank", 100),
         "goal_diff_strength": hs["goal_diff_avg"] - as_["goal_diff_avg"],
         "h2h_home_wins": hw, "h2h_away_wins": aw, "h2h_draws": hd,
         "tournament_weight": 5.0,
         "is_neutral": True,
     }
+
+
+def predict_poisson_scores(home_elo, away_elo, overall_avg, n_sim=50000, seed=42):
+    rng = np.random.default_rng(seed)
+
+    elo_diff = home_elo - away_elo
+    goal_ratio = 10 ** (elo_diff / 400)
+    total_goals = 2 * overall_avg
+
+    lambda_home = max(total_goals * goal_ratio / (1 + goal_ratio), 0.05)
+    lambda_away = max(total_goals / (1 + goal_ratio), 0.05)
+
+    hg = rng.poisson(lambda_home, n_sim)
+    ag = rng.poisson(lambda_away, n_sim)
+
+    unique, counts = np.unique(np.column_stack([hg, ag]), axis=0, return_counts=True)
+    probs = counts / n_sim
+    idx = np.argsort(-probs)
+
+    scores = [(f"{int(unique[i][0])}-{int(unique[i][1])}", float(probs[i])) for i in idx[:10]]
+    return scores, float(lambda_home), float(lambda_away)
 
 
 def main():
@@ -272,13 +275,17 @@ def main():
     df = df.sort("date")
     print(f"   Training matches: {df.height}")
 
+    overall_avg_goals = df.select(
+        (pl.col("home_score").mean() + pl.col("away_score").mean()) / 2
+    ).item()
+    print(f"   Overall avg goals per match: {overall_avg_goals:.3f}")
+
     # ------------------------------------------------------------------
     # 2. BUILD FEATURE VECTORS
     # ------------------------------------------------------------------
     print("\n[2] Building feature vectors...")
-    rankings = load_rankings()
     static_elo = load_static_elo()
-    print(f"   FIFA: {len(rankings)}, Static ELO: {len(static_elo)}")
+    print(f"   Static ELO: {len(static_elo)}")
     elo_lookup = load_elo_history()
     print(f"   {len(elo_lookup)} teams with ELO history")
     features = []
@@ -309,9 +316,6 @@ def main():
             elif r["away_team"] == away and r["away_score"] > r["home_score"]: aw += 1
             else: hd += 1
 
-        hr = rankings.get(home, {})
-        ar = rankings.get(away, {})
-
         he = get_historical_elo(normalize_team_for_elo(home), match_date, elo_lookup, static_elo)
         ae = get_historical_elo(normalize_team_for_elo(away), match_date, elo_lookup, static_elo)
 
@@ -332,13 +336,8 @@ def main():
             "away_draw_pct": as_["draw_pct"],
             "away_loss_pct": as_["loss_pct"],
             "away_recent_form": as_["recent_form"],
-            "home_fifa_rank": hr.get("fifa_rank", 100),
-            "away_fifa_rank": ar.get("fifa_rank", 100),
-            "home_fifa_points": hr.get("fifa_points", 1000),
-            "away_fifa_points": ar.get("fifa_points", 1000),
             "home_elo": he, "away_elo": ae,
             "elo_diff": he - ae,
-            "fifa_rank_diff": ar.get("fifa_rank", 100) - hr.get("fifa_rank", 100),
             "goal_diff_strength": hs["goal_diff_avg"] - as_["goal_diff_avg"],
             "h2h_home_wins": hw, "h2h_away_wins": aw, "h2h_draws": hd,
             "tournament_weight": m["tournament_weight"],
@@ -423,7 +422,7 @@ def main():
     predictions_rows = []
 
     for i, match in enumerate(matches, 1):
-        fv = build_features_for_match(match, df, rankings, MAX_DATE, elo_lookup, static_elo)
+        fv = build_features_for_match(match, df, MAX_DATE, elo_lookup, static_elo)
         fv_arr = scaler.transform(pl.DataFrame([fv]).to_numpy())
 
         offset = 0
@@ -448,6 +447,15 @@ def main():
         print(f"   {'─' * 55}")
         print(f"   STACKING | Local: {local_w:5.1f}%  Empate: {draw_p:5.1f}%  Visitante: {away_w:5.1f}%")
 
+        # Poisson-Monte Carlo exact score probabilities
+        poisson_scores, lambda_home, lambda_away = predict_poisson_scores(
+            fv["home_elo"], fv["away_elo"], overall_avg_goals,
+        )
+        print(f"\n   POISSON   | λ local={lambda_home:.2f}  λ visitante={lambda_away:.2f}")
+        print(f"   {'─' * 32}")
+        for score, prob in poisson_scores[:5]:
+            print(f"   {score:>5s} → {prob*100:5.2f}%")
+
         # Advancement probability (redistribute draw as 50/50)
         local_adv = final_proba[0] + final_proba[1] * 0.5
         away_adv = final_proba[2] + final_proba[1] * 0.5
@@ -462,6 +470,10 @@ def main():
             "away_win_pct": round(away_w, 1),
             "local_advance_pct": round(local_adv / total_adv * 100, 1),
             "away_advance_pct": round(away_adv / total_adv * 100, 1),
+            "expected_goals_local": round(lambda_home, 2),
+            "expected_goals_away": round(lambda_away, 2),
+            "most_likely_score": poisson_scores[0][0] if poisson_scores else "",
+            "most_likely_score_pct": round(poisson_scores[0][1] * 100, 1) if poisson_scores else 0,
         })
 
     print(f"\n   {'=' * 55}")

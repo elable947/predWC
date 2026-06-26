@@ -1,7 +1,25 @@
+import matplotlib
+import sys
+
+# Force non-interactive backend if --save flag is used
+if "--save" in sys.argv:
+    matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 import seaborn as sns
+import os
+
+# Verify interactive display is available
+if os.environ.get("DISPLAY") is None and sys.platform != "darwin":
+    print("  ERROR: No display available (DISPLAY not set).")
+    print("  Tienes una terminal gráfica? Asegúrate de tener un servidor X corriendo.")
+    print("  Sugerencias:")
+    print("    - En Linux local: verifica que estás en una sesión gráfica")
+    print("    - Por SSH: usa ssh -X o ssh -Y")
+    print("    - En WSL: instala y ejecuta un X server (VcXsrv, Xming)")
+    sys.exit(1)
 
 sns.set_style("whitegrid")
 plt.rcParams.update({"font.size": 11, "figure.dpi": 120})
@@ -16,7 +34,7 @@ AWAY_COLOR = "#e67e22"
 def plot_advancement(df):
     if df.is_empty():
         print("  No data to plot")
-        return
+        return None
     fig, ax = plt.subplots(figsize=(10, 8))
     fig.canvas.manager.set_window_title("Avance a 16avos")
     matches = [m.replace(" vs ", "\nvs\n") for m in df["match"]]
@@ -34,12 +52,13 @@ def plot_advancement(df):
         ax.text(l + 1, i + width / 2, f"{l:.0f}%", va="center", fontsize=7, color=LOCAL_COLOR)
         ax.text(a + 1, i - width / 2, f"{a:.0f}%", va="center", fontsize=7, color=AWAY_COLOR)
     fig.tight_layout()
+    return fig
 
 
 def plot_match_probabilities(df):
     if df.is_empty():
         print("  No data to plot")
-        return
+        return None
     n = len(df)
     rows = (n + 3) // 4
     fig, axes = plt.subplots(rows, 4, figsize=(14, 3 * rows))
@@ -61,6 +80,7 @@ def plot_match_probabilities(df):
         fig.delaxes(axes[j])
     fig.suptitle("Probabilidades por partido — 16avos Mundial 2026", fontsize=14, y=1.02)
     fig.tight_layout()
+    return fig
 
 
 def plot_confidence_gauge(df):
@@ -81,6 +101,7 @@ def plot_confidence_gauge(df):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
                 f"{v:.0f}%", ha="center", fontsize=8)
     fig.tight_layout()
+    return fig
 
 
 def plot_poisson_panel(df):
@@ -115,9 +136,12 @@ def plot_poisson_panel(df):
         ax2.text(pct + 0.5, i, label, va="center", fontsize=7)
     ax2.set_xlim(0, df["most_likely_score_pct"].max() + 10)
     fig.tight_layout()
+    return fig
 
 
 def main():
+    save_mode = "--save" in sys.argv
+
     print("=" * 50)
     print("  SHOW RESULTS — World Cup 2026 Predictions")
     print("=" * 50)
@@ -129,10 +153,30 @@ def main():
         return
     print(f"  {df.height} matches loaded")
     print()
-    print("Opening interactive windows...")
-    plot_advancement(df)
-    plot_match_probabilities(df)
-    plot_confidence_gauge(df)
-    plot_poisson_panel(df)
-    print("\nClose the plot windows to exit.")
-    plt.show()
+
+    if save_mode:
+        print("Saving charts to data/ (use without --save for interactive windows)...")
+        figs = [
+            ("advancement.png", plot_advancement(df)),
+            ("probabilities.png", plot_match_probabilities(df)),
+            ("confidence.png", plot_confidence_gauge(df)),
+            ("poisson_scores.png", plot_poisson_panel(df)),
+        ]
+        for name, fig in figs:
+            if fig is None:
+                continue
+            print(f"  Saved data/{name}")
+            plt.close(fig)
+        print("\nDone.")
+    else:
+        print("Opening interactive windows...")
+        plot_advancement(df)
+        plot_match_probabilities(df)
+        plot_confidence_gauge(df)
+        plot_poisson_panel(df)
+        print("\nClose the plot windows to exit.")
+        plt.show()
+
+
+if __name__ == "__main__":
+    main()

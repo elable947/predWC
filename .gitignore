@@ -15,6 +15,13 @@ scripts/
 # Browser drivers
 .venv/lib/python3.*/site-packages/seleniumbase/drivers/
 
+# Skills (nutmeg)
+.agents/
+skills-lock.json
+
+# Design notes
+indicaciones.txt
+
 # OS metadata
 .DS_Store
 Thumbs.db

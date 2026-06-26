@@ -61,7 +61,8 @@ def normalize_team_name(name):
     name = name.replace("Bosnia and Herzegovina", "Bosnia-Herzegovina")
     name = name.replace("C\u00f4te d'Ivoire", "Ivory Coast")
     name = name.replace("Curacao", "Cura\u00e7ao")
-    name = name.replace("Congo", "Congo DR")
+    if name == "Congo":
+        name = "Congo DR"
     return name
 
 
@@ -241,7 +242,7 @@ def build_features_for_match(match, matches_df, rankings, match_date, elo_lookup
         "goal_diff_strength": hs["goal_diff_avg"] - as_["goal_diff_avg"],
         "h2h_home_wins": hw, "h2h_away_wins": aw, "h2h_draws": hd,
         "tournament_weight": 5.0,
-        "is_neutral": False,
+        "is_neutral": True,
     }
 
 

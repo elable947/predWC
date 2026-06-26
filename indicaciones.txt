@@ -1,0 +1,164 @@
+================================================================================
+                   GUÍA COMPLETA PARA STACKING EN MUNDIAL 2026
+                (Basado en los papers de referencia y literatura actual)
+================================================================================
+
+OBJETIVO: Predecir el ganador de cada llave en los 16avos de final del Mundial 2026,
+          utilizando un modelo de Stacking con 2 o 3 modelos base.
+
+================================================================================
+1.  ESTADÍSTICAS DE EQUIPO (Rendimiento histórico - BASE DEL MODELO)
+================================================================================
+
+  1.1. Rendimiento Ofensivo:
+       - Promedio de goles a favor (últimos 5-10 partidos).
+       - Promedio de tiros totales y tiros a puerta.
+       - Tasa de conversión de tiros a gol.
+       - Promedio de asistencias y ocasiones de gol creadas.
+       - Promedio de xG (Goles Esperados) por partido.
+
+  1.2. Rendimiento Defensivo:
+       - Promedio de goles en contra.
+       - Promedio de tiros recibidos y tiros a puerta recibidos.
+       - Promedio de xGA (Goles Esperados en contra).
+       - Número de vallas invictas (clean sheets) en los últimos partidos.
+
+  1.3. Estilo de Juego y Control:
+       - Porcentaje de posesión promedio.
+       - Precisión de pases (total y en último tercio).
+       - Duelos ganados (aéreos y terrestres) – porcentaje.
+       - Índice de presión: (Intercepciones + Despejes + Bloqueos) / Tiros del rival.
+
+  1.4. Disciplina y Física:
+       - Promedio de faltas cometidas.
+       - Promedio de tarjetas amarillas y rojas.
+       - Distancia recorrida promedio (km) por partido.
+
+  1.5. Forma Reciente y Dinámica:
+       - Resultados de los últimos 5 partidos (Victorias/Empates/Derrotas).
+       - Racha actual (ej. 3 victorias consecutivas, 2 derrotas, etc.).
+       - Rendimiento específico como local / como visitante (importante en el Mundial).
+       - Días de descanso desde el último partido (fatiga acumulada).
+
+================================================================================
+2.  ATRIBUTOS DE JUGADORES (Rendimiento individual - MEJORA LA PRECISIÓN)
+================================================================================
+
+  2.1. Rendimiento Clave por Línea:
+       - Delanteros: Promedio de goles y asistencias por partido.
+       - Mediocampistas: Precisión de pases, pases clave y recuperaciones.
+       - Defensas: Intercepciones, entradas (tackles) y despejes por partido.
+       - Porteros: Paradas realizadas y porcentaje de paradas.
+
+  2.2. Valoración y Habilidad (escala 0-100):
+       - Calificación (Rating) media del equipo en plataformas (ej. SofaScore).
+       - Atributos individuales promedio del equipo:
+           * Agilidad, Reacción, Agresión, Conciencia posicional.
+           * Habilidad con balón, Remate, Defensa, Fuerza.
+
+================================================================================
+3.  ODDS DE APUESTAS (Información de mercado - REFLEJA EL CONOCIMIENTO COLECTIVO)
+================================================================================
+
+  3.1. Odds Tradicionales (1X2):
+       - Odds para victoria local (H), empate (D), victoria visitante (A).
+       - Tomar el promedio o la mediana de varias casas de apuestas.
+
+  3.2. Odds de Clasificación:
+       - Odds para que cada equipo avance a la siguiente ronda (gane la llave).
+       - Esto da una probabilidad implícita de pase.
+
+================================================================================
+4.  FACTORES CONTEXTUALES Y DE TORNEO (Clave para un Mundial)
+================================================================================
+
+  4.1. Ranking y Experiencia:
+       - Ranking FIFA actual (o ELO).
+       - Diferencia de ranking entre ambos equipos.
+       - Experiencia en eliminatorias directas (número de partidos de KO jugados por
+         la plantilla en los últimos 4 años).
+       - Edad media de la plantilla.
+
+  4.2. Historial de Enfrentamientos:
+       - Resultados de los últimos enfrentamientos directos (número de victorias,
+         empates y derrotas entre ambos).
+       - Goles a favor/en contra en esos enfrentamientos.
+
+  4.3. Condiciones Especiales:
+       - Importancia del partido (ej. si es una final de grupo o un partido de
+         eliminación directa desde el inicio).
+       - Posible factor sorpresa (equipos revelación, motivación extra).
+
+================================================================================
+5.  VARIABLES DERIVADAS (Feature Engineering - CREAR NUEVAS METRICAS)
+================================================================================
+
+  5.1. Diferenciales:
+       - Diferencia de goles (a favor - en contra).
+       - Diferencia de xG (xG - xGA).
+       - Diferencia de posesión entre equipos.
+
+  5.2. Fuerzas Relativas:
+       - Fuerza ofensiva relativa = (Goles Favor equipo A) / (Goles Contra equipo B).
+       - Fuerza defensiva relativa = (Goles Contra equipo A) / (Goles Favor equipo B).
+
+  5.3. Métricas Avanzadas:
+       - Eficiencia en ataque: (Goles / Tiros a puerta) * 100.
+       - Solidez defensiva: (Tiros a puerta recibidos / Partido) * -1.
+       - Ratio de efectividad en segundas jugadas (córners, faltas laterales).
+
+================================================================================
+6.  RECOMENDACIONES PARA EL MODELO DE STACKING
+================================================================================
+
+  6.1. Elección de Modelos Base (2 o 3):
+       - Opción A (los 3 clásicos): Random Forest, XGBoost y SVM.
+       - Opción B (mezcla): Red Neuronal (MLP), Gradient Boosting (LightGBM) y
+         Naive Bayes. (Asegurar diversidad y bajo error).
+
+  6.2. Meta-Modelo (Nivel 2):
+       - Usar una Regresión Logística (o Ridge) para aprender a combinar las
+         predicciones de los modelos base.
+       - Evitar el sobreajuste usando validación cruzada (ej. 5-folds) para
+         generar los datos de entrenamiento del meta-modelo.
+
+  6.3. Preprocesamiento General:
+       - Normalizar o estandarizar todas las variables numéricas (escalado Z-score
+         o Min-Max).
+       - Manejar valores nulos (imputación por media o mediana).
+       - Balancear las clases (posibles empates) usando SMOTE o ponderación de
+         clases en los modelos.
+
+================================================================================
+7.  CONSTRUCCIÓN DEL DATASET (Pasos prácticos)
+================================================================================
+
+  7.1. Fuentes de Datos Sugeridas:
+       - Estadísticas básicas de resultados: https://raw.githubusercontent.com/martj42/international_results/refs/heads/master/results.csv
+       - Estadísticas avanzadas (xG, posesión, tiros): SofaScore = https://www.sofascore.com/football/tournament/world/world-championship/16#id:58210
+       - mas estadisticas en: https://es.wikipedia.org/wiki/Copa_Mundial_de_F%C3%BAtbol_de_2026#Fase_de_grupos_2
+       - Datos de jugadores (ratings, habilidades): https://sofifa.com/players
+       - ELO, para ver todo el ranking: https://eloratings.net
+       - Elo, para ver estadistica para un equipo: https://eloratings.net/Argentina
+
+  7.2. Periodo Histórico:
+       - Entrenar con partidos de las últimas 5-10 temporadas torneos como Eurocopa, Copa América, Mundiales
+         anteriores, amistosos).
+       - Incluir específicamente partidos de eliminatorias directas para que el
+         modelo aprenda el contexto de "partido único".
+
+  7.3. Estructura de los Datos (Formato final):
+       - Cada fila = 1 partido.
+       - Columnas = TODAS las variables anteriores para el equipo local Y para
+         el equipo visitante (ej. Goles_Local, Goles_Visitante, xG_Local, xG_Visitante).
+       - Variable objetivo (Target): 0 = Victoria Local, 1 = Empate, 2 = Victoria Visitante.
+         (Para la fase de eliminación directa, si hay penales, se recomienda
+          asignar el resultado final o usar un modelo separado para el sorteo).
+
+  7.4. Validación Crucial:
+       - NO mezclar datos futuros. Para predecir la fase final, los promedios
+         deben calcularse con partidos ANTES del Mundial (ej. fase de grupos o
+         clasificatorias previas).
+       - Probar el modelo con datos de Mundiales pasados (2018 y 2022) para
+         calibrar la precisión antes de aplicarlo a 2026.
+

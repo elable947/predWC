@@ -28,7 +28,7 @@
     "visitante": "Bosnia-Herzegovina"
   },
   {
-    "local": "Egypt",
+    "local": "Belgium",
     "visitante": "South Korea"
   },
   {
@@ -41,23 +41,23 @@
   },
   {
     "local": "Mexico",
-    "visitante": "Scotland"
-  },
-  {
-    "local": "England",
     "visitante": "Ecuador"
   },
   {
+    "local": "England",
+    "visitante": "Senegal"
+  },
+  {
     "local": "Argentina",
-    "visitante": "Uruguay"
+    "visitante": "Cape Verde"
   },
   {
     "local": "Australia",
-    "visitante": "Iran"
+    "visitante": "Egypt"
   },
   {
     "local": "Switzerland",
-    "visitante": "Algeria"
+    "visitante": "Iran"
   },
   {
     "local": "Colombia",

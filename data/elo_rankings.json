@@ -1,18 +1,18 @@
 [
   {
     "rank": "1",
+    "team": "Spain",
+    "rating": "2144"
+  },
+  {
+    "rank": "1",
     "team": "Argentina",
     "rating": "2144"
   },
   {
-    "rank": "2",
-    "team": "Spain",
-    "rating": "2134"
-  },
-  {
     "rank": "3",
     "team": "France",
-    "rating": "2090"
+    "rating": "2123"
   },
   {
     "rank": "4",
@@ -42,7 +42,7 @@
   {
     "rank": "9",
     "team": "Norway",
-    "rating": "1951"
+    "rating": "1918"
   },
   {
     "rank": "10",
@@ -101,18 +101,18 @@
   },
   {
     "rank": "21",
+    "team": "Senegal",
+    "rating": "1842"
+  },
+  {
+    "rank": "22",
     "team": "Uruguay",
-    "rating": "1851"
+    "rating": "1841"
   },
   {
     "rank": "22",
     "team": "Austria",
     "rating": "1841"
-  },
-  {
-    "rank": "23",
-    "team": "Senegal",
-    "rating": "1817"
   },
   {
     "rank": "24",
@@ -286,12 +286,12 @@
   },
   {
     "rank": "58",
-    "team": "Cape Verde",
-    "rating": "1625"
+    "team": "Bosnia and Herzegovina",
+    "rating": "1622"
   },
   {
-    "rank": "59",
-    "team": "Bosnia and Herzegovina",
+    "rank": "58",
+    "team": "Cape Verde",
     "rating": "1622"
   },
   {
@@ -322,7 +322,7 @@
   {
     "rank": "65",
     "team": "Saudi Arabia",
-    "rating": "1593"
+    "rating": "1596"
   },
   {
     "rank": "66",
@@ -336,33 +336,33 @@
   },
   {
     "rank": "68",
-    "team": "Iraq",
-    "rating": "1586"
-  },
-  {
-    "rank": "69",
     "team": "Ghana",
     "rating": "1584"
   },
   {
-    "rank": "70",
+    "rank": "69",
     "team": "South Africa",
     "rating": "1575"
   },
   {
-    "rank": "71",
+    "rank": "70",
     "team": "Honduras",
     "rating": "1570"
   },
   {
-    "rank": "72",
+    "rank": "71",
     "team": "Iceland",
     "rating": "1568"
   },
   {
-    "rank": "73",
+    "rank": "72",
     "team": "Tunisia",
     "rating": "1562"
+  },
+  {
+    "rank": "73",
+    "team": "Iraq",
+    "rating": "1561"
   },
   {
     "rank": "74",

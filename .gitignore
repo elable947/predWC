@@ -9,9 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-# Scripts (not committed - data updates managed separately)
-scripts/
-
 # Browser drivers
 .venv/lib/python3.*/site-packages/seleniumbase/drivers/
 
@@ -33,5 +30,5 @@ downloaded_files/
 # Generated charts
 data/*.png
 
-# API keys
-apis.txt
+# API keys (commented out because repo is private; uncomment if making public)
+# apis.txt

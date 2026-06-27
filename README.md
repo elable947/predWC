@@ -1,162 +1,138 @@
-# predWC - World Cup 2026 Knockout Predictor
+# predWC — World Cup 2026 Knockout Predictor
 
-Stacking ensemble model (Random Forest + XGBoost + SVM → Logistic Regression) que predice los ganadores de los 16avos de final del Mundial 2026.
+Stacking ensemble (Random Forest + XGBoost + SVM → Logistic Regression) que predice los 16avos de final del Mundial 2026. Versión extendida con features NLP (news embeddings + YouTube sentiment).
 
 ## Requisitos
 
-- Python ≥ 3.12
-- curl (para instalar uv)
+- **Python ≥ 3.12** (verificar con `python3 --version`)
+- **curl** (para instalar uv)
 
-## Instalación y ejecución
+Probado en **Manjaro** y **Ubuntu**.
 
-### Opción 1: Auto-instalador (recomendado)
+## Instalación
+
+### Opción recomendada: auto-instalador
 
 ```bash
 python install_all.py
 ```
 
-Esto instala `uv` (si no lo tienes), las dependencias con `uv sync`, y Playwright browsers.
+Esto hace todo automáticamente:
+1. Instala `uv` (gestor de paquetes Python) si no lo tienes
+2. Crea entorno virtual e instala todas las dependencias con `uv sync`
+3. Instala Playwright + Chromium (necesario para actualizar datos)
 
-Luego ejecutas el modelo:
-
-```bash
-uv run python stacking_model.py
-```
-
-### Opción 2: Paso a paso (manual)
-
-**Paso 1 — Instalar uv**
+### Opción manual (paso a paso)
 
 ```bash
+# 1. Instalar uv (si no lo tienes)
 curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+# Cierra y abre la terminal, o: source ~/.bashrc
 
-Cierra y abre la terminal, o ejecuta `source ~/.bashrc` / `source ~/.zshrc` para que `uv` esté disponible.
-
-**Paso 2 — Verificar Python 3.12**
-
-```bash
+# 2. Verificar Python 3.12
 python3 --version
-```
 
-Debe mostrar `Python 3.12.x`. Si no lo tienes, instálalo con tu gestor de paquetes o desde [python.org](https://python.org).
-
-**Paso 3 — Instalar dependencias**
-
-```bash
+# 3. Instalar dependencias
 uv sync
+
+# 4. Instalar Chromium para Playwright
+uv run playwright install --with-deps chromium
 ```
 
-Esto lee `pyproject.toml` y crea un entorno virtual (`.venv/`) con todas las librerías necesarias: polars, scikit-learn, xgboost, requests, playwright, etc.
+## Uso
 
-**Paso 4 — Instalar navegadores Playwright** (solo si vas a actualizar datos)
+Una vez instalado, desde la carpeta del proyecto:
 
-```bash
-uv run playwright install chromium
-```
-
-El modelo en sí no lo necesita, pero `scripts/update_data.py` sí.
-
-**Paso 5 — Ejecutar el modelo**
+### Ejecutar el modelo base
 
 ```bash
 uv run python stacking_model.py
 ```
 
-El modelo:
-1. Descarga `results.csv` desde GitHub (~50k partidos internacionales)
-2. Carga rankings ELO y ELO histórico
-3. Construye 25 features por cada uno de los ~8160 partidos (2018–2026)
-4. Entrena 3 modelos base (Random Forest, XGBoost, SVM) con split temporal
-5. Entrena meta-modelo (Logistic Regression) con predicciones out-of-sample
-6. Evalúa en validación temporal (~1630 partidos más recientes)
-7. Re-entrena con todos los datos y predice los 16 cruces de 16avos
-8. Simula scores exactos vía Poisson + Monte Carlo (ELO-based)
-9. Guarda resultados en `data/knockout_predictions.csv`
+Esto:
+1. Descarga partidos históricos internacionales (~50k desde GitHub)
+2. Construye 25 features por partido (ELO, forma reciente, h2h, peso del torneo)
+3. Entrena 3 modelos base con split temporal (80/20 por fecha)
+4. Entrena meta-modelo (Logistic Regression) con predicciones out-of-sample
+5. Evalúa en validación temporal (~1630 partidos)
+6. Predice los 16 cruces de 16avos y simula scores exactos (Poisson + Monte Carlo)
 
-**Paso 6 — Ver resultados gráficos**
-
-```bash
-uv run python show_results.py
-```
-
-Abre 4 ventanas interactivas: avance por partido, probabilidades local/empate/visitante, confianza del modelo, y scores esperados Poisson.
-
-**Paso 7 — (Opcional) Predicciones con NLP**
-
-El proyecto incluye una versión extendida que usa 24 features derivadas de NLP (news embeddings + YouTube sentiment). Para ejecutarla:
+### Ejecutar el modelo con NLP
 
 ```bash
 uv run python stacking_model_nlp.py
 ```
 
-Para visualizar los resultados NLP:
+Incluye 24 features adicionales (11 componentes PCA de news embeddings + YouTube sentiment por equipo).
+
+### Ver resultados gráficos
 
 ```bash
-uv run python show_results.py --nlp
+uv run python show_results.py       # resultados base
+uv run python show_results.py --nlp # resultados NLP
 ```
 
-**Paso 8 — (Opcional) Actualizar datasets**
+Abre 4 ventanas: avance, probabilidades, confianza y scores Poisson.
 
-Si quieres regenerar los datos desde cero:
+## Actualizar datos
+
+Los datasets ya vienen precargados, pero puedes actualizarlos:
+
+### Actualizar todo (ELO + cruces)
 
 ```bash
 uv run python scripts/update_data.py
 ```
 
-Esto actualiza rankings ELO, historial ELO y cruces de knockout desde sus fuentes originales. Requiere Playwright instalado (paso 4).
+### Actualizar noticias y NLP
 
-## Archivos incluidos
+```bash
+# 1. Scrapea noticias (Wikipedia + BBC/ESPN)
+uv run python scripts/fetch_team_news.py
+
+# 2. Scrapea comentarios YouTube (necesita API key en apis.txt)
+uv run python scripts/fetch_team_comments.py
+
+# 3. Recalcula embeddings + PCA + sentiment
+uv run python scripts/compute_team_embeddings.py
+```
+
+### Si el bracket del Mundial cambia
+
+```bash
+uv run python scripts/fetch_knockout_matches.py
+uv run python stacking_model.py
+uv run python stacking_model_nlp.py
+```
+
+## Archivos
 
 | Archivo | Descripción |
-|---|---|---|
-| `stacking_model.py` | Modelo stacking base (25 features) — entrena y predice los 16 cruces |
-| `stacking_model_nlp.py` | Modelo stacking + 24 features NLP (news embeddings + YouTube sentiment) |
-| `show_results.py` | Visualización interactiva (matplotlib); usar `--nlp` para versión NLP |
-| `data/` | Datasets pre-generados (ELO, knockout matches, NLP features, raw data) |
+|---------|-------------|
+| `stacking_model.py` | Modelo stacking base (25 features) |
+| `stacking_model_nlp.py` | Modelo stacking + 24 features NLP |
+| `show_results.py` | Visualización interactiva |
+| `install_all.py` | Auto-instalador (recomendado) |
 | `pyproject.toml` | Dependencias del proyecto |
-| `install_all.py` | Auto-instalador: instala uv, dependencias y Playwright |
+| `analisis_nlp.md` | Por qué las features NLP no cambian las predicciones |
+| `data/` | Rankings ELO, partidos, predicciones, raw news/comments |
+| `scripts/` | Scrapers y utilidades para actualizar datos |
 
 ## Salida del modelo
 
-Ambos modelos imprimen en consola:
-- Accuracy y log-loss sobre validación temporal (~1630 partidos, split 80/20 por fecha)
-- Probabilidad de victoria local / empate / visitante para cada uno de los 16 partidos
-- λ esperados (Poisson) y top 5 scores exactos más probables
+Ambos modelos muestran:
+- Accuracy y log-loss en validación temporal
+- Probabilidad local / empate / visitante para cada partido
+- λ Poisson y top 5 scores exactos más probables
 - Probabilidad de avance (empate se reparte 50/50)
 
-Además guardan:
-- `data/knockout_predictions.csv` — predicciones del modelo base
-- `data/knockout_predictions_nlp.csv` — predicciones del modelo NLP
+También guardan:
+- `data/knockout_predictions.csv` — predicciones base
+- `data/knockout_predictions_nlp.csv` — predicciones NLP
 
-## Estructura del proyecto
+## Notas técnicas
 
-```
-predWC/
-├── stacking_model.py              # Modelo base
-├── stacking_model_nlp.py          # Modelo con NLP
-├── show_results.py                # Visualización
-├── install_all.py                 # Auto-instalador
-├── pyproject.toml                 # Dependencias
-├── README.md
-├── data/
-│   ├── elo_rankings.json          # ELO snapshot (eloratings.net)
-│   ├── elo_history.parquet        # ELO histórico por partido
-│   ├── knockout_matches.json      # 16 cruces de 16avos
-│   ├── knockout_predictions.csv   # Predicciones base
-│   ├── knockout_predictions_nlp.csv  # Predicciones NLP
-│   ├── team_nlp_features.json     # 11 PC de news + YouTube sentiment por equipo
-│   ├── raw_news/                  # Artículos Wikipedia + BBC/ESPN por equipo
-│   └── raw_comments/              # Comentarios de YouTube por equipo
-└── scripts/ (no incluido en git)
-    ├── fetch_elo.py, fetch_elo_history.py, fetch_knockout_matches.py
-    ├── fetch_team_news.py, fetch_team_comments.py, compute_team_embeddings.py
-    └── build_dataset.py, update_data.py
-```
-
-## Notas
-
-- `MAX_DATE` se calcula como `hoy - 1 día` — los datos de entrenamiento se actualizan automáticamente
-- Los datos en `data/` están pre-generados; para regenerarlos se necesita la carpeta `scripts/` (ver sección de actualización)
-- Las predicciones de avance dividen el empate 50/50 entre local y visitante
-- El modelo NLP requiere datos generados por los scripts de scraping (news + YouTube); si faltan, el script mostrará un error con instrucciones
+- `MAX_DATE` se calcula como `hoy - 1 día` — los datos se actualizan solos al ejecutar
+- Creado con `uv init --python 3.12` — el entorno usa exactamente esa versión
+- En Manjaro, si Playwright falla, instalar: `sudo pacman -S atk at-spi2-atk cups libdrm libxkbcommon libxcomposite libxdamage libxrandr mesa nss pango cairo gtk3`
+- Las features NLP no afectan las predicciones por falta de datos históricos con NLP (ver `analisis_nlp.md`)

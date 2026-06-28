@@ -11,15 +11,18 @@ import polars as pl
 import seaborn as sns
 import os
 
-# Verify interactive display is available
-if os.environ.get("DISPLAY") is None and sys.platform != "darwin":
-    print("  ERROR: No display available (DISPLAY not set).")
-    print("  Tienes una terminal gráfica? Asegúrate de tener un servidor X corriendo.")
-    print("  Sugerencias:")
-    print("    - En Linux local: verifica que estás en una sesión gráfica")
-    print("    - Por SSH: usa ssh -X o ssh -Y")
-    print("    - En WSL: instala y ejecuta un X server (VcXsrv, Xming)")
-    sys.exit(1)
+# Verify interactive display is available (skip in --save mode)
+if "--save" not in sys.argv:
+    if os.environ.get("DISPLAY") is None and sys.platform != "darwin":
+        print("  ERROR: No display available (DISPLAY not set).")
+        print("  Tienes una terminal gráfica? Asegúrate de tener un servidor X corriendo.")
+        print("  Sugerencias:")
+        print("    - En Linux local: verifica que estás en una sesión gráfica")
+        print("    - Por SSH: usa ssh -X o ssh -Y")
+        print("    - En WSL: instala y ejecuta un X server (VcXsrv, Xming)")
+        print()
+        print("  Para guardar PNG sin display: python show_results.py --save")
+        sys.exit(1)
 
 sns.set_style("whitegrid")
 plt.rcParams.update({"font.size": 11, "figure.dpi": 120})

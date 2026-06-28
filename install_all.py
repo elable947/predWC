@@ -109,19 +109,27 @@ def main():
     # ------------------------------------------------------------------
     print(f"\n{color('[3/4]', '96')} Installing Playwright browsers...")
     print("  (Needed for scripts/update_data.py and data scraping)")
+    print(f"  {color('Not needed for the stacking model itself.', '93')}")
     playwright_ok = run(
-        ["uv", "run", "playwright", "install", "--with-deps", "chromium"],
-        "Installing Chromium + system dependencies",
+        ["uv", "run", "playwright", "install", "chromium"],
+        "Downloading Chromium browser",
         check=False, capture=True,
     )
     if not playwright_ok:
-        print(f"\n  {color('WARNING:', '93')} Playwright install failed.")
-        print("  On Manjaro you may need system deps first:")
-        print("    sudo pacman -S atk at-spi2-atk cups libdrm")
-        print("    sudo pacman -S libxkbcommon libxcomposite libxdamage libxrandr")
-        print("    sudo pacman -S mesa nss pango cairo gtk3")
-        print("  Then re-run: uv run playwright install chromium")
-        print("  (Not needed for the stacking model, only for data scraping)")
+        print(f"\n  {color('WARNING:', '93')} Chromium download failed.")
+        print("  The model will still work. To fix for data scraping:")
+        print("    uv run playwright install chromium")
+    else:
+        _deps = run(
+            ["uv", "run", "playwright", "install-deps", "chromium"],
+            "Installing system dependencies (optional)",
+            check=False, capture=True,
+        )
+        if not _deps:
+            print(f"  {color('TIP:', '93')} On Manjaro/Arch, install system deps manually if needed:")
+            print("    sudo pacman -S atk at-spi2-atk cups libdrm")
+            print("    sudo pacman -S libxkbcommon libxcomposite libxdamage libxrandr")
+            print("    sudo pacman -S mesa nss pango cairo gtk3")
 
     # ------------------------------------------------------------------
     # Step 4: Check data files

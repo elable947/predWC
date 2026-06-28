@@ -1,12 +1,12 @@
 [
   {
     "rank": "1",
-    "team": "Spain",
-    "rating": "2144"
+    "team": "Argentina",
+    "rating": "2148"
   },
   {
-    "rank": "1",
-    "team": "Argentina",
+    "rank": "2",
+    "team": "Spain",
     "rating": "2144"
   },
   {
@@ -110,9 +110,9 @@
     "rating": "1841"
   },
   {
-    "rank": "22",
+    "rank": "23",
     "team": "Austria",
-    "rating": "1841"
+    "rating": "1836"
   },
   {
     "rank": "24",
@@ -126,16 +126,16 @@
   },
   {
     "rank": "26",
+    "team": "Algeria",
+    "rating": "1785"
+  },
+  {
+    "rank": "27",
     "team": "United States",
     "rating": "1781"
   },
   {
-    "rank": "27",
-    "team": "Algeria",
-    "rating": "1780"
-  },
-  {
-    "rank": "27",
+    "rank": "28",
     "team": "Ukraine",
     "rating": "1780"
   },
@@ -276,13 +276,13 @@
   },
   {
     "rank": "56",
-    "team": "Jordan",
-    "rating": "1632"
+    "team": "Uzbekistan",
+    "rating": "1631"
   },
   {
     "rank": "57",
-    "team": "Uzbekistan",
-    "rating": "1631"
+    "team": "Jordan",
+    "rating": "1628"
   },
   {
     "rank": "58",

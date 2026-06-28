@@ -151,7 +151,7 @@ def main():
     print()
     print("  Commands:")
     print(f"    {color('uv run python stacking_model.py', '96')}        # Base model")
-    print(f"    {color('uv run python stacking_model_nlp.py', '96')}     # NLP-enhanced model")
+    print(f"    {color('uv run python stacking_model.py --nlp', '96')}             # NLP-enhanced model")
     print(f"    {color('uv run python show_results.py', '96')}           # View results")
     print(f"    {color('uv run python show_results.py --nlp', '96')}     # View NLP results")
     print(f"    {color('uv run python scripts/update_data.py', '96')}    # Update all data")

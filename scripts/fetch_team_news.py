@@ -31,6 +31,7 @@ def wiki_page_name(team):
         "South Korea": "South_Korea_national_football_team",
         "Ivory Coast": "Ivory_Coast_national_football_team",
         "Bosnia-Herzegovina": "Bosnia_and_Herzegovina_national_football_team",
+        "Canada": "Canada_men%27s_national_soccer_team",
     }
     name = exceptions.get(team, f"{team.replace(' ', '_')}_national_football_team")
     return name.replace("'", "%27")
@@ -38,18 +39,16 @@ def wiki_page_name(team):
 
 def fetch_wikipedia_summary(team):
     page = wiki_page_name(team)
-    headers = {"User-Agent": "predWC/0.1 (research project)"}
+    url = f"https://en.wikipedia.org/wiki/{page}"
     try:
-        r = requests.get(
-            f"https://en.wikipedia.org/api/rest_v1/page/summary/{page}",
-            headers=headers, timeout=10
-        )
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("extract", "")
+        downloaded = trafilatura.fetch_url(url)
+        if downloaded:
+            body = trafilatura.extract(downloaded)
+            if body and len(body) > 100:
+                return body[:5000]
+        return ""
     except Exception:
-        pass
-    return ""
+        return ""
 
 
 def extract_article_body(url):

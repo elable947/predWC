@@ -17,9 +17,13 @@ def load_youtube_api_key():
         print("     - <your_youtube_api_key>")
         sys.exit(1)
     with open(APIS_FILE) as f:
+        in_youtube = False
         for line in f:
             line = line.strip()
-            if line.startswith("- "):
+            if line.upper().startswith("YOUTUBE:"):
+                in_youtube = True
+                continue
+            if in_youtube and line.startswith("- "):
                 return line[2:].strip()
     print(f"  ERROR: No API key found in {APIS_FILE}. Format:")
     print("    YOUTUBE:")

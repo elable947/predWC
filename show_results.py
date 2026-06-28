@@ -154,7 +154,8 @@ def main():
     try:
         df = pl.read_csv(csv_path)
     except FileNotFoundError:
-        print(f"  ERROR: {csv_path} not found. Run stacking_model{'nlp' if use_nlp else ''}.py first.")
+        flag = " --nlp" if use_nlp else ""
+        print(f"  ERROR: {csv_path} not found. Run stacking_model.py{flag} first.")
         return
     print(f"  {df.height} matches loaded")
     print()

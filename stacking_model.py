@@ -1,3 +1,4 @@
+import argparse
 import bisect
 import json
 import warnings
@@ -20,12 +21,13 @@ RESULTS_URL = "https://raw.githubusercontent.com/martj42/international_results/r
 ELO_RANKINGS = "data/elo_rankings.json"
 ELO_HISTORY = "data/elo_history.parquet"
 KNOCKOUT_MATCHES = "data/knockout_matches.json"
+NLP_FEATURES = "data/team_nlp_features.json"
 MAX_DATE = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 TOURNAMENT_WEIGHTS = {
     "FIFA World Cup": 5.0,
     "UEFA Euro": 4.0,
-    "Copa América": 4.0,
+    "Copa Am\u00e9rica": 4.0,
     "African Cup of Nations": 3.5,
     "AFC Asian Cup": 3.5,
     "Gold Cup": 3.0,
@@ -37,8 +39,7 @@ TOURNAMENT_WEIGHTS = {
     "Friendly": 1.0,
 }
 
-FEATURE_COLS = [
-
+BASE_FEATURE_COLS = [
     "home_matches_played", "home_goals_for_avg", "home_goals_against_avg",
     "home_goal_diff_avg", "home_win_pct", "home_draw_pct", "home_loss_pct",
     "home_recent_form",
@@ -49,12 +50,14 @@ FEATURE_COLS = [
     "h2h_home_wins", "h2h_away_wins", "h2h_draws", "tournament_weight", "is_neutral",
 ]
 
+NLP_FEATURE_COLS = None  # built dynamically after loading NLP data
+
 
 def normalize_team_name(name):
     name = name.strip()
     name = name.replace("Korea Republic", "South Korea")
     name = name.replace("Czechia", "Czech Republic")
-    name = name.replace("Turkey", "Türkiye")
+    name = name.replace("Turkey", "T\u00fcrkiye")
     name = name.replace("DR Congo", "Congo DR")
     name = name.replace("United States of America", "United States")
     name = name.replace("Bosnia and Herzegovina", "Bosnia-Herzegovina")
@@ -176,7 +179,23 @@ def compute_rolling_stats(matches, team_col, date, elo_lookup, static_elo=None, 
     }
 
 
-def build_features_for_match(match, matches_df, match_date, elo_lookup, static_elo=None):
+def load_nlp_data():
+    global NLP_FEATURE_COLS
+    with open(NLP_FEATURES) as f:
+        data = json.load(f)
+    if NLP_FEATURE_COLS is None and data:
+        sample = next(iter(data.values()))
+        n_pc = sum(1 for k in sample if k.startswith("news_pc"))
+        NLP_FEATURE_COLS = (
+            [f"home_news_pc{j+1}" for j in range(n_pc)]
+            + ["home_yt_sent"]
+            + [f"away_news_pc{j+1}" for j in range(n_pc)]
+            + ["away_yt_sent"]
+        )
+    return data
+
+
+def build_features_for_match(match, matches_df, match_date, elo_lookup, static_elo=None, nlp_data=None):
     home = normalize_team_name(match["local"])
     away = normalize_team_name(match["visitante"])
 
@@ -201,7 +220,7 @@ def build_features_for_match(match, matches_df, match_date, elo_lookup, static_e
     he = get_historical_elo(normalize_team_for_elo(home), date, elo_lookup, static_elo)
     ae = get_historical_elo(normalize_team_for_elo(away), date, elo_lookup, static_elo)
 
-    return {
+    fv = {
         "home_matches_played": hs["matches_played"],
         "home_goals_for_avg": hs["goals_for_avg"],
         "home_goals_against_avg": hs["goals_against_avg"],
@@ -227,6 +246,23 @@ def build_features_for_match(match, matches_df, match_date, elo_lookup, static_e
         "is_neutral": True,
     }
 
+    if nlp_data and NLP_FEATURE_COLS:
+        def safe_get(team, key):
+            d = nlp_data.get(team) or nlp_data.get(normalize_team_name(team), {})
+            return d.get(key, 0.0)
+
+        n_pc = sum(1 for k in (next(iter(nlp_data.values())) if nlp_data else {}) if k.startswith("news_pc"))
+        for j in range(n_pc):
+            fv[f"home_news_pc{j+1}"] = safe_get(home, f"news_pc{j+1}")
+            fv[f"away_news_pc{j+1}"] = safe_get(away, f"news_pc{j+1}")
+        fv["home_yt_sent"] = safe_get(home, "youtube_sentiment")
+        fv["away_yt_sent"] = safe_get(away, "youtube_sentiment")
+    elif NLP_FEATURE_COLS:
+        for k in NLP_FEATURE_COLS:
+            fv[k] = 0.0
+
+    return fv
+
 
 def predict_poisson_scores(home_elo, away_elo, overall_avg, n_sim=50000, seed=42):
     rng = np.random.default_rng(seed)
@@ -250,13 +286,40 @@ def predict_poisson_scores(home_elo, away_elo, overall_avg, n_sim=50000, seed=42
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Stacking Model for WC 2026 Predictions")
+    parser.add_argument("--nlp", action="store_true", help="Include NLP features (news + YouTube sentiment)")
+    args = parser.parse_args()
+    use_nlp = args.nlp
+
+    title = "STACKING MODEL + NLP" if use_nlp else "STACKING MODEL"
     print("=" * 60)
-    print("STACKING MODEL - 16avos World Cup 2026")
+    print(f"{title} - 16avos World Cup 2026")
     print("=" * 60)
 
-    # ------------------------------------------------------------------
-    # 1. LOAD DATA
-    # ------------------------------------------------------------------
+    nlp_data = None
+    if use_nlp:
+        import os
+        if not os.path.exists(NLP_FEATURES):
+            print("\n  ERROR: NLP features file not found.")
+            print("  ************************************************************")
+            print("  Para usar --nlp necesitas generar los datos primero.")
+            print()
+            print("  Instala las dependencias adicionales:")
+            print("    uv add sentence-transformers textblob")
+            print("    uv add feedparser trafilatura google-api-python-client")
+            print()
+            print("  Luego ejecuta los scripts en orden:")
+            print("    uv run python scripts/fetch_team_news.py")
+            print("    uv run python scripts/fetch_team_comments.py")
+            print("    uv run python scripts/compute_team_embeddings.py")
+            print("  ************************************************************")
+            import sys
+            sys.exit(22)
+
+        print("\n[0] Loading NLP data...")
+        nlp_data = load_nlp_data()
+        print(f"   {len(nlp_data)} teams with NLP features loaded")
+
     print("\n[1] Loading training data...")
     r = requests.get(RESULTS_URL, timeout=30)
     r.raise_for_status()
@@ -280,9 +343,6 @@ def main():
     ).item()
     print(f"   Overall avg goals per match: {overall_avg_goals:.3f}")
 
-    # ------------------------------------------------------------------
-    # 2. BUILD FEATURE VECTORS
-    # ------------------------------------------------------------------
     print("\n[2] Building feature vectors...")
     static_elo = load_static_elo()
     print(f"   Static ELO: {len(static_elo)}")
@@ -357,19 +417,15 @@ def main():
     dates_arr = np.array(match_dates)
     print(f"   Feature matrix: {X.shape}")
 
-    # ------------------------------------------------------------------
-    # 3. TRAIN STACKING WITH TEMPORAL SPLIT
-    # ------------------------------------------------------------------
-    # Use last 20% by date as validation (no future leakage)
     n = len(dates_arr)
     split_idx = int(n * 0.8)
     train_idx = np.arange(split_idx)
     val_idx = np.arange(split_idx, n)
 
     train_date_cutoff = dates_arr[split_idx - 1].strftime("%Y-%m-%d")
-    val_date_range = f"{dates_arr[split_idx].strftime('%Y-%m-%d')} → {dates_arr[-1].strftime('%Y-%m-%d')}"
+    val_date_range = f"{dates_arr[split_idx].strftime('%Y-%m-%d')} \u2192 {dates_arr[-1].strftime('%Y-%m-%d')}"
     print(f"\n[3] Training stacking model (temporal split)...")
-    print(f"   Train: {n - len(val_idx)} matches (→ {train_date_cutoff})")
+    print(f"   Train: {n - len(val_idx)} matches (\u2192 {train_date_cutoff})")
     print(f"   Valid: {len(val_idx)} matches ({val_date_range})")
 
     X_tr, X_val = X[train_idx], X[val_idx]
@@ -386,35 +442,35 @@ def main():
         "svm": SVC(kernel="rbf", probability=True, random_state=42),
     }
 
-    # Train base models on train set, predict on val set (out-of-sample for meta)
     print("   Training base models...")
-    meta_val = np.zeros((len(y_val), 3 * 3))
-
     for name, model in models.items():
         model.fit(X_tr_scaled, y_tr)
+
+    meta_val_base = np.zeros((len(y_val), 3 * 3))
     offset = 0
     for name, model in models.items():
-        meta_val[:, offset:offset + 3] = model.predict_proba(X_val_scaled)
+        meta_val_base[:, offset:offset + 3] = model.predict_proba(X_val_scaled)
         offset += 3
 
-    # Train meta-model on VAL predictions (out-of-sample), evaluate on val
+    if use_nlp and NLP_FEATURE_COLS:
+        meta_val_nlp = np.zeros((len(y_val), len(NLP_FEATURE_COLS)))
+        meta_val = np.concatenate([meta_val_base, meta_val_nlp], axis=1)
+    else:
+        meta_val = meta_val_base
+
     meta = LogisticRegression(solver="lbfgs", max_iter=1000, C=0.1, random_state=42)
     meta.fit(meta_val, y_val)
 
     val_probs = meta.predict_proba(meta_val)
     val_acc = accuracy_score(y_val, np.argmax(val_probs, axis=1))
     val_ll = log_loss(y_val, val_probs)
-    print(f"\n   Temporal validation — accuracy: {val_acc:.4f}, log_loss: {val_ll:.4f}")
+    print(f"\n   Temporal validation \u2014 accuracy: {val_acc:.4f}, log_loss: {val_ll:.4f}")
 
-    # Retrain base models on FULL data for final predictions
     print("\n   Retraining base models on full data...")
     X_full_scaled = scaler.fit_transform(X)
     for name, model in models.items():
         model.fit(X_full_scaled, y)
 
-    # ------------------------------------------------------------------
-    # 4. PREDICT KNOCKOUT MATCHES
-    # ------------------------------------------------------------------
     print("\n[4] Predicting 16avos matchups...")
     with open(KNOCKOUT_MATCHES) as f:
         matches = json.load(f)
@@ -422,45 +478,63 @@ def main():
     predictions_rows = []
 
     for i, match in enumerate(matches, 1):
-        fv = build_features_for_match(match, df, MAX_DATE, elo_lookup, static_elo)
-        fv_arr = scaler.transform(pl.DataFrame([fv]).to_numpy())
+        fv = build_features_for_match(match, df, MAX_DATE, elo_lookup, static_elo, nlp_data)
+        fv_df = pl.DataFrame([fv])
+        fv_base = scaler.transform(fv_df.select(BASE_FEATURE_COLS).to_numpy())
 
         offset = 0
-        meta_input = np.zeros((1, 9))
-        print(f"\n   {'─' * 55}")
+        meta_input_base = np.zeros((1, 9))
+
+        nlp_str = ""
+        if use_nlp and NLP_FEATURE_COLS:
+            meta_input_nlp = fv_df.select(NLP_FEATURE_COLS).to_numpy()
+            n_pc = sum(1 for k in fv if k.startswith("home_news_pc"))
+            pc_str_h = "  ".join(f"PC{j+1}={fv.get(f'home_news_pc{j+1}',0):+.2f}" for j in range(min(n_pc, 3)))
+            pc_str_a = "  ".join(f"PC{j+1}={fv.get(f'away_news_pc{j+1}',0):+.2f}" for j in range(min(n_pc, 3)))
+            nlp_str = (
+                f"\n   NLP: {match['local']}  {pc_str_h}  ...  YT={fv.get('home_yt_sent',0):+.3f}"
+                f"\n        {match['visitante']}  {pc_str_a}  ...  YT={fv.get('away_yt_sent',0):+.3f}"
+            )
+
+        print(f"\n   {'\u2500' * 60}")
         print(f"   Match {i:02d}: {match['local']} vs {match['visitante']}")
-        print(f"   {'─' * 55}")
+        print(f"   {'\u2500' * 60}")
+        if nlp_str:
+            print(nlp_str)
 
         for name, model in models.items():
-            proba = model.predict_proba(fv_arr)[0]
-            meta_input[0, offset:offset + 3] = proba
+            proba = model.predict_proba(fv_base)[0]
+            meta_input_base[0, offset:offset + 3] = proba
             offset += 3
             local_win = proba[0] * 100
             draw = proba[1] * 100
             away_win = proba[2] * 100
             print(f"   {name.upper():5s} | Local: {local_win:5.1f}%  Empate: {draw:5.1f}%  Visitante: {away_win:5.1f}%")
 
+        if use_nlp and NLP_FEATURE_COLS:
+            meta_input = np.concatenate([meta_input_base, meta_input_nlp], axis=1)
+        else:
+            meta_input = meta_input_base
+
         final_proba = meta.predict_proba(meta_input)[0]
         local_w = final_proba[0] * 100
         draw_p = final_proba[1] * 100
         away_w = final_proba[2] * 100
-        print(f"   {'─' * 55}")
-        print(f"   STACKING | Local: {local_w:5.1f}%  Empate: {draw_p:5.1f}%  Visitante: {away_w:5.1f}%")
+        print(f"   {'\u2500' * 60}")
+        print(f"   STACKING  | Local: {local_w:5.1f}%  Empate: {draw_p:5.1f}%  Visitante: {away_w:5.1f}%")
 
-        # Poisson-Monte Carlo exact score probabilities
         poisson_scores, lambda_home, lambda_away = predict_poisson_scores(
             fv["home_elo"], fv["away_elo"], overall_avg_goals,
         )
-        print(f"\n   POISSON   | λ local={lambda_home:.2f}  λ visitante={lambda_away:.2f}")
-        print(f"   {'─' * 32}")
+        print(f"\n   POISSON   | \u03bb local={lambda_home:.2f}  \u03bb visitante={lambda_away:.2f}")
+        print(f"   {'\u2500' * 32}")
         for score, prob in poisson_scores[:5]:
-            print(f"   {score:>5s} → {prob*100:5.2f}%")
+            print(f"   {score:>5s} \u2192 {prob*100:5.2f}%")
 
-        # Advancement probability (redistribute draw as 50/50)
         local_adv = final_proba[0] + final_proba[1] * 0.5
         away_adv = final_proba[2] + final_proba[1] * 0.5
         total_adv = local_adv + away_adv
-        print(f"   {'─' * 55}")
+        print(f"   {'\u2500' * 60}")
         print(f"   AVANCE    | {match['local']}: {local_adv / total_adv * 100:.1f}%  |  {match['visitante']}: {away_adv / total_adv * 100:.1f}%")
 
         predictions_rows.append({
@@ -476,9 +550,10 @@ def main():
             "most_likely_score_pct": round(poisson_scores[0][1] * 100, 1) if poisson_scores else 0,
         })
 
-    print(f"\n   {'=' * 55}")
-    pl.DataFrame(predictions_rows).write_csv("data/knockout_predictions.csv")
-    print("   Predictions saved to data/knockout_predictions.csv")
+    output_csv = "data/knockout_predictions_nlp.csv" if use_nlp else "data/knockout_predictions.csv"
+    print(f"\n   {'=' * 60}")
+    pl.DataFrame(predictions_rows).write_csv(output_csv)
+    print(f"   Predictions saved to {output_csv}")
 
 
 if __name__ == "__main__":

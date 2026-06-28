@@ -97,10 +97,9 @@ uv run python scripts/fetch_team_comments.py
 uv run python scripts/compute_team_embeddings.py
 ```
 
-### Si el bracket del Mundial cambia
+### Para re-entrenar con los datos actuales
 
 ```bash
-uv run python scripts/fetch_knockout_matches.py
 uv run python stacking_model.py
 uv run python stacking_model_nlp.py
 ```

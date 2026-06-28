@@ -9,7 +9,6 @@ SCRIPTS = ROOT / "scripts"
 SCRIPTS_TO_RUN = [
     ("fetch_elo.py",           "ELO rankings"),
     ("fetch_elo_history.py",   "ELO history (per-match)"),
-    ("fetch_knockout_matches.py", "Knockout matches"),
 ]
 
 

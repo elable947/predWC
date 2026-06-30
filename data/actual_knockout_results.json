@@ -1,0 +1,50 @@
+[
+  {
+    "local": "Germany",
+    "away": "Paraguay",
+    "local_goals_regular": 1,
+    "away_goals_regular": 1,
+    "local_goals_extra": 0,
+    "away_goals_extra": 0,
+    "local_penalties": 3,
+    "away_penalties": 4,
+    "advancing_team": "Paraguay",
+    "notes": "Alemania 1-1 Paraguay (3-4 pen)"
+  },
+  {
+    "local": "Netherlands",
+    "away": "Morocco",
+    "local_goals_regular": 1,
+    "away_goals_regular": 1,
+    "local_goals_extra": 0,
+    "away_goals_extra": 0,
+    "local_penalties": 2,
+    "away_penalties": 3,
+    "advancing_team": "Morocco",
+    "notes": "Países Bajos 1-1 Marruecos (2-3 pen)"
+  },
+  {
+    "local": "South Africa",
+    "away": "Canada",
+    "local_goals_regular": 0,
+    "away_goals_regular": 1,
+    "local_goals_extra": null,
+    "away_goals_extra": null,
+    "local_penalties": null,
+    "away_penalties": null,
+    "advancing_team": "Canada",
+    "notes": "Sudáfrica 0-1 Canadá"
+  },
+  {
+    "local": "Brazil",
+    "away": "Japan",
+    "local_goals_regular": 2,
+    "away_goals_regular": 1,
+    "local_goals_extra": null,
+    "away_goals_extra": null,
+    "local_penalties": null,
+    "away_penalties": null,
+    "advancing_team": "Brazil",
+    "notes": "Brasil 2-1 Japón"
+  }
+]

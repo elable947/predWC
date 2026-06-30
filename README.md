@@ -67,6 +67,29 @@ uv run python show_results.py --save     # guarda PNG en vez de mostrar ventanas
 
 Abre 4 ventanas: avance, probabilidades, confianza y scores Poisson.
 
+### Tracker en vivo de resultados
+
+```bash
+uv run python bracket_tracker.py                  # tabla textual
+uv run python bracket_tracker.py --nlp            # con predicciones NLP
+uv run python bracket_tracker.py --graphs         # gráficos interactivos
+uv run python bracket_tracker.py --graphs --save  # guarda PNG
+```
+
+Muestra cada partido con 3 dimensiones: **T.Regular** (ganador en 90'), **Marcador** (score exacto) y **Clasificación** (quién avanzó, incluyendo penales). Datos reales obtenidos de las fuentes oficiales vía bracketmundial2026.com.
+
+```
+Germany vs Paraguay       T. Regular       Germany (44%)       Empate              [x]
+                          Marcador         1-1 (11%)           1-1                 [+]
+                          Clasificación    Germany (61%)       Paraguay (3-4 pen)  [x]
+```
+
+Los gráficos incluyen:
+- **Pizarra de resultados** — 16 cards con TR/SC/AV por partido
+- **Perfiles de confianza** — barras L/E/V con resultado real destacado
+- **Marcador: Pred vs Real** — comparación de goles (grid 2×2)
+- **Panel de estadísticas** — aciertos de T.Regular y Clasificación
+
 ### Evaluación extendida del modelo
 
 ```bash
@@ -110,6 +133,7 @@ YOUTUBE:
 | Archivo | Descripción |
 |---------|-------------|
 | `stacking_model.py` | Modelo stacking (25 features base; `--nlp` agrega 24 NLP) |
+| `bracket_tracker.py` | Tracker en vivo — tabla + gráficos con métricas duales (TR + Clasificación) |
 | `evaluate_model.py` | Evaluación extendida (F1, MCC, Brier, calibración) |
 | `show_results.py` | Visualización interactiva |
 | `install_all.py` | Auto-instalador |
@@ -117,6 +141,7 @@ YOUTUBE:
 | `pyproject.toml` | Dependencias del proyecto |
 | `apis.txt` | API keys (tracked solo por ser repo privado) |
 | `data/` | ELO, partidos, predicciones, raw news/comments |
+| `data/actual_knockout_results.json` | Resultados reales de 16avos con info de penales |
 | `scripts/` | Scrapers y utilidades |
 
 ## Salida del modelo
@@ -132,12 +157,25 @@ Guardan:
 - `data/knockout_predictions.csv` — predicciones base
 - `data/knockout_predictions_nlp.csv` — predicciones NLP
 
+## Tracker en vivo — métricas duales
+
+`bracket_tracker.py` compara las predicciones contra los resultados reales en **2 dimensiones**:
+
+| Métrica | Mide | Ejemplo |
+|---------|------|---------|
+| **T.Regular** | Ganador en 90' (Local/Empate/Visitante) | Alemania (44%) → Empate ✗ |
+| **Clasificación** | Quién avanzó (incluye penales) | Germany → Paraguay ✗ |
+| **Marcador** | Score exacto | 1-1 → 1-1 ✓ |
+
+Los resultados reales se obtienen de bracketmundial2026.com (ver `data/actual_knockout_results.json`). En fase eliminatoria, un empate en 90' puede definirse por penales — la métrica de Clasificación captura ese desenlace mientras que T.Regular solo refleja el resultado en tiempo reglamentario.
+
 ## Notas técnicas
 
 - `MAX_DATE` se calcula como `hoy - 1 día` — los datos se actualizan solos al ejecutar
 - Accuracy temporal: **58.81%**, log-loss: **0.8761** (Temporal split, 1634 partidos futuros)
 - F1 macro: **0.4351**, MCC: **0.3246**, Top-2 accuracy: **83.11%**, ECE: **0.0106**
 - El modelo casi no predice empates (0.3% predicho vs 23% real) — ver `evaluate_model.py`
+- Live tracking 16avos: T.Regular **3/4 (75%)**, Clasificación **2/4 (50%)**
 - Creado con `uv init --python 3.12`
 - En Manjaro, si Playwright falla: `sudo pacman -S atk at-spi2-atk cups libdrm libxkbcommon libxcomposite libxdamage libxrandr mesa nss pango cairo gtk3`
 - Las features NLP existen para los 32 equipos pero tienen impacto limitado porque no hay datos NLP históricos para entrenar el meta-modelo (ver `analisis_nlp.md`)
